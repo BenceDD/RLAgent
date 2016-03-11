@@ -6,7 +6,7 @@ class Policy:
     pass
 
 
-class EnvironmentImplementation:
+class EnvironmentImplementation(Environment):
 
     def __init__(self):
         # sample data...
@@ -25,52 +25,54 @@ class EnvironmentImplementation:
         self._internal_state += action
 
 
-class PolicyImplementation:
+class PolicyImplementation(Policy):
 
     def __init__(self):
         self._action_table = {}
-        self._action_list = set()
         self._current_state = None
+        self._action = None
         self._last_action = None
 
     @staticmethod
     def _evaluate_state(observation):
         # figure out the state from the observation
-        return observation
-
-    def _update_action_list(self, actions):
-        self._action_list.add(actions)
-
-    def improve(self, reward, actions):
-        if (self._current_state or self._last_action) is None:
-            return  # because we are not able to learn...
-
-        # check if we are new possibilities to do (somehow...)
-        self._update_action_list(actions)
-
-        # update the policy
-        self._action_table[(self._current_state, self._last_action)] = reward  # ???
-
-        # clean up
-        self._last_action = None  # we already learned from this!
+        return int(observation)
 
     def evaluate(self, observation):
         # get state from observation
         self._current_state = self._evaluate_state(observation)
 
+        # save state
+        self._last_action = self._action
+
         # list the possible actions
-        possible_actions = self._action_table[self._current_state]
+        if self._current_state in self._action_table:
+            possible_actions = self._action_table[self._current_state]
+        else:  # we can't to anything
+            self._action = None
+            return None
 
         # choose the best - or not always the best...
-        action = max(possible_actions, key=lambda x: possible_actions[x])
+        self._action = max(possible_actions, key=lambda x: possible_actions[x])
 
-        # save action for future improvement
-        self._last_action = action
+        return self._action
 
-        return action
+    def improve(self, reward, actions):
+        # if has not been in the _current_state before, than we add possible actions with 0.5 probability and return
+        if self._current_state not in self._action_table:
+            self._action_table[self._current_state] = {}
+            for action in actions:
+                self._action_table[self._current_state][action] = 0.5
+
+        # update the policy IF we done something
+        if self._action is not None:
+            self._action_table[self._current_state][self._last_action] = reward  # ???
 
 
 class TDAgent:
+
+    def __init__(self):
+        self._improvement_policy_state = True
 
     @staticmethod
     def _choose_policy(environment_description):
@@ -78,8 +80,10 @@ class TDAgent:
         if 'discrete' in environment_description:
             return PolicyImplementation()
 
-    @staticmethod
-    def create_policy(environment):
+    def _improvement_policy(self):
+        return self._improvement_policy_state
+
+    def create_policy(self, environment, until):
         # get the details of the environment
         description = environment.get_environment_description()
 
@@ -87,17 +91,21 @@ class TDAgent:
         policy = TDAgent._choose_policy(description)
 
         # improve the policy, until is't become enough good...
-        for i in range(0, 100):
+        for i in range(0, until):
             # observe the environment: it contains all the observable data, and the reward for the last experiment
             # in the available_actions the environment should pass that what actions can be applied in a situation
             observation, reward, available_actions = environment.observe()
-            policy.improve(reward, available_actions)
             action = policy.evaluate(observation)
-            environment.apply_action(action)
+
+            if self._improvement_policy():  # how often should we improve?
+                policy.improve(reward, available_actions)
+
+            if action is not None:  # if we don't know what to do, maybe later
+                environment.apply_action(action)
 
         return policy
 
 
 agent = TDAgent()
 e = EnvironmentImplementation()
-p = agent.create_policy(e)
+p = agent.create_policy(e, 1)
