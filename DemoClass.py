@@ -1,101 +1,103 @@
 class Environment:
-    """ This class represents the environment, which about we can get info, or apply actions on. """
-    def get_info(self):
-        # this is NOT a complete state because of the partially observable environment.
-        return "A"
+    pass
+
+
+class Policy:
+    pass
+
+
+class EnvironmentImplementation:
+
+    def __init__(self):
+        # sample data...
+        self._internal_state = 4
+        self._description = ['partially observable', 'deterministic', 'episodic', 'static', 'discrete']
+        self._actions = ['left', 'right', 'up', 'down']
+
+    def get_environment_description(self):
+        return self._description
+
+    def observe(self):
+        # a list describe the internal state, a reward for the last experiment, and the actions for next
+        return self._internal_state/2,  1, self._actions
 
     def apply_action(self, action):
-        return
+        self._internal_state += action
 
 
-class DiscreteModel:
-    """ The model represents the knowledge about the world. It has to have an initial state.
-        Knowledge is the states and it's reward value (empirical)
-    """
+class PolicyImplementation:
 
-    def __init__(self, state):
-        # States will contain all the states with its utility
-        self._states = {state: 0}
+    def __init__(self):
+        self._action_table = {}
+        self._action_list = set()
+        self._current_state = None
+        self._last_action = None
 
-        # Status indicates the current , which MUST be a key in the states array!
-        self._state = state
+    @staticmethod
+    def _evaluate_state(observation):
+        # figure out the state from the observation
+        return observation
 
-    def _evaluate(self, info):
-        """ This function "converts" info to state """
-        return "State"
+    def _update_action_list(self, actions):
+        self._action_list.add(actions)
 
-    def update(self, info, reward):
-        # assume witch state we are in
-        state = self._evaluate(info)
+    def improve(self, reward, actions):
+        if (self._current_state or self._last_action) is None:
+            return  # because we are not able to learn...
 
-        # add the state and the reward (it store the last reward, is it ok??)
-        self._states[state] = reward
+        # check if we are new possibilities to do (somehow...)
+        self._update_action_list(actions)
 
-        # Set current state
-        self._state = info
+        # update the policy
+        self._action_table[(self._current_state, self._last_action)] = reward  # ???
 
-    def get_available_actions(self):
-        # Assumed that an state change possibility means that it is declared in the dictionary
-        return self._pm[self._state]
+        # clean up
+        self._last_action = None  # we already learned from this!
 
+    def evaluate(self, observation):
+        # get state from observation
+        self._current_state = self._evaluate_state(observation)
 
-class MatrixUtilityImplementation:
-    def __index__(self):
-        # PM (probability matrix) represents a graph, which currently has only one point, without any edge
-        self._pm = {}
+        # list the possible actions
+        possible_actions = self._action_table[self._current_state]
 
-    def get_utility(self, state):
-        return "4"
+        # choose the best - or not always the best...
+        action = max(possible_actions, key=lambda x: possible_actions[x])
 
+        # save action for future improvement
+        self._last_action = action
 
-class EpsilonGreedyPolicy:
-
-    def __init__(self, utility):
-        # braveness factor
-        self._epsilon = 1
-
-        # implementation of a storage for utilities
-        self._utility = utility
-
-        self._model = DiscreteModel(environment.get_state())
-
-    def evaluate(self, info):
-
-        # depend on the rule, update the model, 
-
-         # update the model based on the information about the last experiment
-        self._model.update(info)
-
-         # get the available actions from the model
-        action_list = self._model.get_available_actions()
+        return action
 
 
-        # TODO: implement epsilon greedy rule! This method call should improve the policy!
-        return max(states, key=lambda x: states[x])
+class TDAgent:
 
-    def _improve(self):
-        return
+    @staticmethod
+    def _choose_policy(environment_description):
+        # determine which policy should be used depending on what we know about the environment
+        if 'discrete' in environment_description:
+            return PolicyImplementation()
+
+    @staticmethod
+    def create_policy(environment):
+        # get the details of the environment
+        description = environment.get_environment_description()
+
+        # initialize policy
+        policy = TDAgent._choose_policy(description)
+
+        # improve the policy, until is't become enough good...
+        for i in range(0, 100):
+            # observe the environment: it contains all the observable data, and the reward for the last experiment
+            # in the available_actions the environment should pass that what actions can be applied in a situation
+            observation, reward, available_actions = environment.observe()
+            policy.improve(reward, available_actions)
+            action = policy.evaluate(observation)
+            environment.apply_action(action)
+
+        return policy
 
 
-class Agent:
-    """ An agent in the environment:
-        - at first it needs to get informed about the surrounding world, and make a strategy from it
-        - after that it should be manipulate the world (apply actions)
-    """
-    def __init__(self, environment, policy):
-        self._environment = environment
-        self._policy = policy
-
-    def start(self):
-        # a stop condition should be here...
-        while():
-            # gathering information from the world (part of state, reward)
-            info = self._environment.get_info()
-
-            # figure out what to do :)
-            action = self._policy.evaluate(info)
-
-            # do it
-            self._environment.apply_action(action)
-        return
-
+agent = TDAgent()
+e = EnvironmentImplementation()
+p = agent.create_policy(e)
