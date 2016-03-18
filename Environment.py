@@ -15,7 +15,7 @@ class EnvironmentImplementation(Environment):
 
     def observe(self):
         # a list describe the internal state, a reward for the last experiment, and the actions for next
-        return self._internal_state/2,  1, self._actions
+        return {'state': self._internal_state/2,  'reward': 1, 'actions': self._actions}
 
     def apply_action(self, action):
         self._internal_state += action

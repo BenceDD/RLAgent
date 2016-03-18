@@ -1,5 +1,11 @@
 class AbstractPolicy:
 
+    def evaluate(self):
+        return self.evaluate(None, None)
+
+    def evaluate(self, observation_list):
+        return self.evaluate(observation_list, None)
+
     def evaluate(self, observation_list, state_function):
         """
         Choose an action from the given set of possibilities.
@@ -21,8 +27,14 @@ class AbstractPolicy:
         raise "This policy can not improved!"
 
 
-class GreedyPolicy(AbstractPolicy):
+class ImprovementPolicy(AbstractPolicy):
 
+    def evaluate(self, observation_list, state_function):
+        return True
+
+
+class GreedyPolicy(AbstractPolicy):
+    # TODO: Implement Greedy!
     def evaluate(self, observation_list, state_function):
         return super().evaluate(observation_list, state_function)
 
