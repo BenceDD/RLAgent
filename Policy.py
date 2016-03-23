@@ -1,89 +1,62 @@
-class AbstractPolicy:
+class Policy:
 
-    def evaluate(self):
-        return self.evaluate(None, None)
-
-    def evaluate(self, observation_list):
-        return self.evaluate(observation_list, None)
-
-    def evaluate(self, observation_list, state_function):
+    def evaluate(self, memory, state, actions):
         """
         Choose an action from the given set of possibilities.
-        :param observation_list: A list of experiences, which helps to choose.
-        :param state_function: It "converts" an observation to a state
+        :param memory: This represent the knowledge (context)
+        :param state: The state where we are in.
+        :param actions: The possibilities.
         :return: An action if it can be evaluated, or None if not.
         """
-        raise "Evaluation not implemented yet!"
+        raise Exception("Evaluation is not implemented yet!")
 
-    def improve(self, state1, action, state2, reward):
+
+class StatefulPolicy(Policy):
+
+    def improve(self, memory):
         """
-        Improve the policy by the given parameters.
-        :param state1: The state before the action
-        :param action: Action which fired in state represented by the first parameter.
-        :param state2: State after the action fired.
-        :param reward: This is the reward (feedback) from the environment.
+        Improve the policy by the memory
+        :param memory: Stores all we already know.
         :return: None
         """
-        raise "This policy can not improved!"
+        raise Exception("Improvement is not implemented yet!")
 
 
-class ImprovementPolicy(AbstractPolicy):
-
-    def evaluate(self, observation_list, state_function):
-        return True
-
-
-class GreedyPolicy(AbstractPolicy):
+class GreedyPolicy(Policy):
+    """ This policy choose the best from the available actions for the LAST state """
     # TODO: Implement Greedy!
-    def evaluate(self, observation_list, state_function):
-        return super().evaluate(observation_list, state_function)
+    def evaluate(self, memory, state, actions):
+        # get the latest state, and choose the action from the possibilities which has the greatest expected value
+        pass
 
 
-class EpsilonGreedyPolicy(GreedyPolicy):
+class EpsilonGreedyPolicy(Policy):
+    """ This policy policy use the GreedyPolicy according to a certain distribution """
+    # TODO: Implement EpsilonGreedyPolicy!
+    def __int__(self, probability):
+        self._epsilon = probability
+        self._greedy = GreedyPolicy()
 
-    def evaluate(self, observation_list, state_function):
-        return super().evaluate(observation_list, state_function)
+    def evaluate(self, memory, state, actions):
+        # get a random number from {1 ... 1/epsilon} to choose if follow the GreedyPolicy or not.
+        # then get an other for choose the action
+        pass
 
 
-class PolicyImplementation:
-
+class TraineePolicy(StatefulPolicy):
+    """ This is the policy for training """
+    # TODO: Figure out how it's work!
     def __init__(self):
-        self._action_table = {}
-        self._current_state = None
-        self._action = None
-        self._last_action = None
+        self._evaluationPolicy = EpsilonGreedyPolicy()
+        self._actionTable = {}
 
-    @staticmethod
-    def _evaluate_state(observation):
-        # figure out the state from the observation
-        return int(observation)
-
-    def evaluate(self, observation):
-        # get state from observation
-        self._current_state = self._evaluate_state(observation)
-
-        # save state
-        self._last_action = self._action
-
-        # list the possible actions
-        if self._current_state in self._action_table:
-            possible_actions = self._action_table[self._current_state]
-        else:  # we can't to anything
-            self._action = None
+    def evaluate(self, memory, state, actions):
+        if state is None or actions is None:
             return None
+        # add all possible state-action pairs to actiontable with def value (add new if needed)
+        # select all value with state
+        # return _evaluationPolicy(None, state, selected_from_actiontable)
 
-        # choose the best - or not always the best...
-        self._action = max(possible_actions, key=lambda x: possible_actions[x])
-
-        return self._action
-
-    def improve(self, reward, actions):
-        # if has not been in the _current_state before, than we add possible actions with 0.5 probability and return
-        if self._current_state not in self._action_table:
-            self._action_table[self._current_state] = {}
-            for action in actions:
-                self._action_table[self._current_state][action] = 0.5
-
-        # update the policy IF we done something
-        if self._action is not None:
-            self._action_table[self._current_state][self._last_action] = reward  # ???
+    def improve(self, memory):
+        # update the actiontable following the state-action-rewards
+        pass

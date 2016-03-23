@@ -1,41 +1,31 @@
 from Policy import *
-from Environment import EnvironmentImplementation
+from Environment import *
+from Memory import *
 
 
 class TDAgent:
 
     def __init__(self):
-        self._improvement_policy = ImprovementPolicy();
-
-    @staticmethod
-    def _choose_policy(environment_description):
-        # determine which policy should be used depending on what we know about the environment
-        if 'discrete' in environment_description:
-            return PolicyImplementation()
+        self._memory = Memory()
 
     def train_policy(self, environment, until):
-        # get the details of the environment
-        description = environment.get_environment_description()
 
-        # initialize policy
-        trainee = TDAgent._choose_policy(description)
+        trainee = TraineePolicy()
 
-        # improve the policy, until is't become enough good...
+        state = None
+        actions = None
+
         for i in range(0, until):
-            # observe the environment: it contains all the observable data, and the reward for the last experiment
-            # in the available_actions the environment should pass that what actions can be applied in a situation
-            observation = environment.observe()
-            action = trainee.evaluate(observation)
-
-            if self._improvement_policy.evaluate() is True:  # how often should we improve?
-                trainee.improve(observation['reward'], available_actions)
-
-            if action is not None:  # if we don't know what to do, maybe later
-                environment.apply_action(action)
-
+            # it must return null if can't do anything
+            action = trainee.evaluate(self._memory, state, actions)
+            environment.apply_action(action)
+            state_before = state
+            state, actions, reward = environment.observe()
+            self._memory.store((state_before, action, state, reward))
+            trainee.improve(self._memory)
         return trainee
 
 
 agent = TDAgent()
-e = EnvironmentImplementation()
-p = agent.train_policy(e, 1)
+e = WoodCutterEnvironment()
+agent.train_policy(e, 10)
