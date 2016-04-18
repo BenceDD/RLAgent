@@ -1,31 +1,31 @@
 from Policy import *
+from Architecture import *
 from Environment import *
-from Memory import *
 
 
-class TDAgent:
+class TDTrainer:
 
-    def __init__(self):
-        self._memory = Memory()
+    @staticmethod
+    def train(environment, architecture, iteration_limit):
 
-    def train_policy(self, environment, until):
+        agent_function = AgentFunction()
+        last_action = None
+        problem_generator = EpsilonGreedyPolicy()
 
-        trainee = TraineePolicy()
+        for i in range(0, iteration_limit):
+            observation, reward = architecture.observe(environment)
+            agent_function.improve(last_action, reward)
 
-        state = None
-        actions = None
+            best_action = agent_function.evaluate(observation)
+            next_action = problem_generator.evaluate(best_action)
 
-        for i in range(0, until):
-            # it must return null if can't do anything
-            action = trainee.evaluate(self._memory, state, actions)
-            environment.apply_action(action)
-            state_before = state
-            state, actions, reward = environment.observe()
-            self._memory.store((state_before, action, state, reward))
-            trainee.improve(self._memory)
-        return trainee
+            architecture.execute(environment, next_action)
+            last_action = next_action
+
+        return agent_function
 
 
-agent = TDAgent()
-e = WoodCutterEnvironment()
-agent.train_policy(e, 10)
+trainer = TDTrainer()
+arch = WoodCutter()
+env = WoodCutterEnvironment()
+trainer.train(env, arch, 10)
