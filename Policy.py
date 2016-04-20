@@ -28,8 +28,8 @@ class EpsilonGreedyPolicy(Policy):
         pass
 
 
-class AgentFunction(Policy):
-    def improve(self, last_action, reward):
+class AgentFunction:
+    def improve(self, learning_algorithm, last_action, reward):
         pass
 
     def evaluate(self, observation):

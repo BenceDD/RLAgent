@@ -3,29 +3,31 @@ from Architecture import *
 from Environment import *
 
 
-class TDTrainer:
+class RLAgent:
 
-    @staticmethod
-    def train(environment, architecture, iteration_limit):
+    def __init__(self, environment, architecture):
+        self.environment = environment
+        self.architecture = architecture
+        self.agent_function = AgentFunction()
 
-        agent_function = AgentFunction()
+    def train(self, learning_algorithm, exploration_function, iteration_limit):
         last_action = None
-        problem_generator = EpsilonGreedyPolicy()
 
         for i in range(0, iteration_limit):
-            observation, reward = architecture.observe(environment)
-            agent_function.improve(last_action, reward)
+            observation, reward = self.architecture.observe(self.environment)
+            self.agent_function.improve(learning_algorithm, last_action, reward)
 
-            best_action = agent_function.evaluate(observation)
-            next_action = problem_generator.evaluate(best_action)
+            best_action = self.agent_function.evaluate(observation)
+            next_action = exploration_function.evaluate(best_action)
 
-            architecture.execute(environment, next_action)
+            self.architecture.execute(self.environment, next_action)
             last_action = next_action
 
-        return agent_function
+        return self.agent_function
 
 
-trainer = TDTrainer()
-arch = WoodCutter()
 env = WoodCutterEnvironment()
-trainer.train(env, arch, 10)
+arch = WoodCutter()
+agent = RLAgent(env, arch)
+
+agent.train(None, None, 10)
