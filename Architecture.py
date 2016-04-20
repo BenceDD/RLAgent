@@ -19,10 +19,10 @@ class Architecture:
 
 class WoodCutter(Architecture):
     def observe(self, forest_environment):
-        return forest_environment.tree_age, forest_environment.money
+        return forest_environment.tree_age
 
     def execute(self, forest_environment, action):
         if action is 0:
-            forest_environment.wait_one_more_year()
+            return forest_environment.wait_one_more_year()
         if action is 1:
-            forest_environment.cut_down_trees()
+            return forest_environment.cut_down_trees()

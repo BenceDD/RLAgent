@@ -11,7 +11,11 @@ class WoodCutterEnvironment:
         if random.randint(0, 7) is 2:
             self.tree_age = 0
             self.money -= 50
+            return -50
+        return 0
 
     def cut_down_trees(self):
-        self.money += self.tree_age * 10
+        income = self.tree_age * 10
+        self.money += income
         self.money -= 50
+        return income
