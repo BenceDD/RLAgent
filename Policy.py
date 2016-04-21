@@ -1,4 +1,8 @@
+from FunctionArchitecture import TablePolicyFunction
+
+
 class Policy:
+    """ A probability over the actions """
 
     def evaluate(self, state):
         raise Exception("Evaluation is not implemented yet!")
@@ -9,7 +13,10 @@ class Policy:
 
 class GreedyPolicy(Policy):
     """ This policy choose the best from the available actions for the LAST state """
-    # TODO: Implement Greedy!
+
+    def __init__(self):
+        self.Q = TablePolicyFunction()
+
     def evaluate(self, observation):
         # get the latest state, and choose the action from the possibilities which has the greatest expected value
         pass
@@ -29,7 +36,16 @@ class EpsilonGreedyPolicy(Policy):
 
 
 class AgentFunction:
-    def improve(self, learning_algorithm, last_action, reward):
+
+    def __init__(self):
+        self.policy = None
+        self.training_method = None
+
+    def set_improvement_properties(self, policy, training_method):
+        self.policy = policy
+        self.training_method = training_method
+
+    def improve(self, action, reward):
         pass
 
     def evaluate(self, observation):
