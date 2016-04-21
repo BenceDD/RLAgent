@@ -1,38 +1,38 @@
-from FunctionArchitecture import TablePolicyFunction
+from collections import defaultdict
 
 
 class Policy:
-    """ A probability over the actions """
+    @staticmethod
+    def table_policy_function():
+        return defaultdict(lambda: defaultdict(lambda: 0))
 
-    def evaluate(self, state):
-        raise Exception("Evaluation is not implemented yet!")
+    @staticmethod
+    def tensor_flow_neural_network():
+        pass
 
-    def improve(self, action, result):
-        raise Exception("Improvement is not implemented yet!")
+    def evaluate(self, observation, action):
+        raise Exception('Evaluation not implemented yet!')
+
+    def improve(self, training_method, action, reward):
+        raise Exception('Improvement not implemented yet!')
 
 
 class GreedyPolicy(Policy):
     """ This policy choose the best from the available actions for the LAST state """
 
     def __init__(self):
-        self.Q = TablePolicyFunction()
+        self.Q = self.table_policy_function()
 
-    def evaluate(self, observation):
-        # get the latest state, and choose the action from the possibilities which has the greatest expected value
-        pass
+    def evaluate(self, observation, action):
+        actions = self.Q[observation]
+        max_values = [k for k in actions if actions[k] is max(actions.values())]
+        if action in max_values:
+            return 1 / len(max_values)
+        else:
+            return 0
 
-
-class EpsilonGreedyPolicy(Policy):
-    """ This policy policy use the GreedyPolicy according to a certain distribution """
-    # TODO: Implement EpsilonGreedyPolicy!
-    def __int__(self, probability):
-        self._epsilon = probability
-        self._greedy = GreedyPolicy()
-
-    def evaluate(self, observation):
-        # get a random number from {1 ... 1/epsilon} to choose if follow the GreedyPolicy or not.
-        # then get an other for choose the action
-        pass
+    def improve(self, training_method, action, reward):
+        training_method(self.Q, action, reward)
 
 
 class AgentFunction:
@@ -46,8 +46,9 @@ class AgentFunction:
         self.training_method = training_method
 
     def improve(self, action, reward):
-        pass
+        self.policy.improve(self.training_method, action, reward)
 
     def evaluate(self, observation):
+        # TODO: how to iterate on the all actions?
         return observation
 

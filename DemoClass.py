@@ -1,7 +1,6 @@
 from Policy import *
 from Architecture import *
 from Environment import *
-from FunctionArchitecture import TablePolicyFunction
 
 
 class RLAgent:
@@ -12,9 +11,9 @@ class RLAgent:
         self.agent_function = AgentFunction()
 
     def train(self, policy, learning_function, iteration_limit):
-        action = None
         self.agent_function.set_improvement_properties(policy, learning_function)
 
+        action = None
         for i in range(0, iteration_limit):
 
             observation, reward = self.architecture.interact(self.environment, action)
@@ -25,19 +24,11 @@ class RLAgent:
         return self.agent_function
 
     @staticmethod
-    def td_train():
+    def td_train(q_table, action, reward):
         pass
 
-"""
+
 env = WoodCutterEnvironment()
 arch = WoodCutter()
 agent = RLAgent(env, arch)
-
-agent.train(None, None, 10)
-"""
-tfi = TablePolicyFunction()
-tfi.define('a', 'b', 34)
-print(tfi.eval('a', 'b'))
-print(tfi.eval('a', 'c'))
-print(tfi.eval('d', 'b'))
-
+agent.train(GreedyPolicy(), RLAgent.td_train, 10)
