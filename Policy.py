@@ -67,5 +67,8 @@ class AgentFunction:
 
     def evaluate(self, observation):
         # TODO: how to iterate on the all actions?
-        return observation
+        actions = self.policy.Q[observation]
+        for action in actions:
+            if self.policy.evaluate(observation, action) is not 0:
+                return action
 
