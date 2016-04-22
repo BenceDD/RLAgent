@@ -11,14 +11,15 @@ class RLAgent:
         self.agent_function = AgentFunction()
 
     def train(self, policy, learning_function, iteration_limit):
-        self.agent_function.set_improvement_properties(policy, learning_function)
+        # these can be set for a single training session
+        self.agent_function.policy = policy
+        self.agent_function.training_method = learning_function
 
         action = None
         for i in range(0, iteration_limit):
-
             observation, reward = self.architecture.interact(self.environment, action)
-            self.agent_function.improve(action, reward)
 
+            self.agent_function.improve(action, reward)
             action = self.agent_function.evaluate(observation)
 
         return self.agent_function
