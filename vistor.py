@@ -1,60 +1,57 @@
-class FunctionRepresentation(object):
-    def improve_by(self, training_function):
-        training_function.visit(self)
-    # itt kell majd felsorolni mind a 9 esetet
-    def pollinate(self, pollinator):
-        print(self, "pollinated by", pollinator)
-    def eat(self, eater):
-        print(self, "eaten by", eater)
-    def __str__(self):
-        return self.__class__.__name__
+class FunctionImplementation:
+    def improve_by(self, imp_func):
+        imp_func.improve(self)
 
 
-class Table(FunctionRepresentation):
-    def improve_by(self, training_function):
-        training_function.train_table(self)
+class Table(FunctionImplementation):
+    def improve_by_td(self, imp_func):
+        print("A table improved by TDLearn")
 
-class CalculusExpression(FunctionRepresentation): pass
-class NeuralNetwork(FunctionRepresentation): pass
+    def improve_by_q(self, imp_func):
+        print("A table improved by QLearn")
 
-class TrainingFunction:
-
-    def train_table(self): pass
-
-    def __str__(self):
-        return self.__class__.__name__
-
-class TableLearner(TrainingFunction): pass
-class NetworkLearner(TrainingFunction): pass
-#class CalculusLearner(TrainingFunction): pass
-
-# Add the ability to do "Bee" activities:
-class TDLearn(TableLearner):
-    def visit(self, flower):
-        flower.pollinate(self)
-
-    def train_table(self, func_repl):
-        func_repl.td_train_table(self)
-
-# Add the ability to do "Fly" activities:
-class QLearn(TableLearner):
-    def visit(self, flower):
-        flower.pollinate(self)
-
-# Add the ability to do "Worm" activities:
-class SARSA(NetworkLearner):
-    def visit(self, flower):
-        flower.eat(self)
+    def improve_by_sarsa(self, imp_func):
+        print("A table improved by SARSA")
 
 
-# It's almost as if I had a method to Perform
-# various "Bug" operations on all Flowers:
-tdlearn = TDLearn()
-qlearn = QLearn()
-sarsa = SARSA()
+class NeuralNetwork(FunctionImplementation):
+    def improve_by_td(self, imp_func):
+        print("A neural network improved by TDLearn")
+
+    def improve_by_q(self, imp_func):
+        print("A neural network improved by QLearn")
+
+    def improve_by_sarsa(self, imp_func):
+        print("A neural network improved by SARSA")
+
+
+class CalculusExpression(FunctionImplementation):
+    def improve_by_td(self, imp_func):
+        print("A calculus expression improved by TDLearn")
+
+    def improve_by_q(self, imp_func):
+        print("A calculus expression improved by QLearn")
+
+    def improve_by_sarsa(self, imp_func):
+        print("A calculus expression improved by SARSA")
+
+
+class TDLearn:
+    def improve(self, func_impl):
+        func_impl.improve_by_td(self)
+
+
+class QLearn:
+    def improve(self, func_impl):
+        func_impl.improve_by_q(self)
+
+
+class SARSA:
+    def improve(self, func_impl):
+        func_impl.improve_by_sarsa(self)
+
 
 table = Table()
-calc = CalculusExpression()
-network = NeuralNetwork()
+td_learn = TDLearn()
 
-table.improve_by(sarsa)
+table.improve_by(td_learn)
