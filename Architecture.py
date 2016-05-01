@@ -1,21 +1,32 @@
 from collections import defaultdict
+from Environment import *
 
 
-class WoodCutter():
+class WoodCutter:
 
     def __init__(self, forest_environment):
+        # save the environment for later... (it might be not necessary)
+        self.forest = forest_environment
         self.manipulators = {}
+
+        # add a manipulator
         plant_action = DiscreteActionHandler('Plant')
         plant_action.set_action_handler(0, forest_environment.wait_one_more_year)
         plant_action.set_action_handler(1, forest_environment.cut_down_trees)
         self.manipulators['plant'] = plant_action
 
-    def interact(self, forest_environment, action):
-        for part_action in action:
-            
-            reward = self.manipulators[action]
+    def interact(self, action):
+        """
+        Observes the environment after executes the action in the parameter.
+        :param action: array of action indexes indexed by manipulator ID's, which a "composite" action.
+        :return: observation of the environment, and the reward
+        """
+        # calculate the reward from the
+        reward = 0
+        for manipulator_id in action:
+            reward += self.manipulators[manipulator_id].sample(action[manipulator_id])()
 
-        return forest_environment.tree_age, reward
+        return {'observation': self.forest.tree_age, 'reward': reward}
 
 
 class DiscreteActionHandler:
@@ -84,11 +95,12 @@ class ContinuousActionHandler:
         self._action_table[interval] = action_handler
 
     def get_interpretation_interval(self):
-        for begin, end in self._action_table:
-            for
+        pass
 
 
-handler = ContinuousActionHandler("szintszabalyozo", 0.5)
-handler.set_action_handler((2, 6), lambda: print('say hello'))
+env = WoodCutterEnvironment()
+wc = WoodCutter(env)
 
-print(handler.get_interpretation_interval())
+print(wc.interact({'plant': 0}))
+
+

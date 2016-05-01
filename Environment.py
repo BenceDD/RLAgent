@@ -16,6 +16,5 @@ class WoodCutterEnvironment:
 
     def cut_down_trees(self):
         income = self.tree_age * 10
-        self.money += income
-        self.money -= 50
+        self.money += (income - 50)
         return income
