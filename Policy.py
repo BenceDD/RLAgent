@@ -61,11 +61,13 @@ class AgentFunction:
         """
         self.policy = None
         self.training_method = None
+        self._last_observation = None
 
     def improve(self, action, reward):
         self.policy.improve(self.training_method, action, reward)
 
     def evaluate(self, observation):
+        self._last_observation = observation
         # TODO: how to iterate on the all actions?
         actions = self.policy.Q[observation]
         for action in actions:

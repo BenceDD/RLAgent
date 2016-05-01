@@ -58,14 +58,9 @@ class DiscreteActionHandler:
         """
         return self._action_table.keys()
 
-
+"""
 class ContinuousActionHandler:
     def __init__(self, name, resolution):
-        """
-        Makes a new manipulator with continuous interpretation range
-        :param name: name of the manipulator, should be unique for the architecture instance
-        :param resolution: sampling resolution of the function
-        """
         self.name = name
         self.resolution = resolution
         self._action_table = defaultdict(lambda: lambda: print("Unimplemented action!"))
@@ -77,12 +72,6 @@ class ContinuousActionHandler:
                 return self._action_table[points]
 
     def set_action_handler(self, interval, action_handler):
-        """
-        Set action for an interval.
-        :param interval: tuple of integers
-        :param action_handler: a function
-        :return:
-        """
         (begin, end) = interval
         if end < begin:
             raise Exception("Starting point of interval must be lower than ending point!")
@@ -102,5 +91,5 @@ env = WoodCutterEnvironment()
 wc = WoodCutter(env)
 
 print(wc.interact({'plant': 0}))
-
+"""
 
