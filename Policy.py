@@ -1,17 +1,7 @@
-from collections import defaultdict
+from TrainingFunction import Table
 
 
 class Policy:
-    @staticmethod
-    def table_policy_function():
-        """ Returns a table for a 2 dim -> 1 dim (Q) function """
-        return defaultdict(lambda: defaultdict(lambda: 0))
-
-    @staticmethod
-    def tensor_flow_neural_network():
-        """ Returns a TF neural network """
-        return None
-
     def evaluate(self, observation, action):
         """
         Get the probability of an action in the given state represented by the related observation
@@ -32,15 +22,15 @@ class Policy:
         raise Exception('Improvement not implemented yet!')
 
 
-class GreedyPolicy(Policy):
+class GreedyPolicy:  # should it inherit from policy??
     """ This policy choose the best from the available actions for the LAST state """
 
     def __init__(self):
-        self.Q = self.table_policy_function()
+        self.U = Table()
 
     def evaluate(self, observation, action):
         # get all actions which can be performed in a state
-        actions = self.Q[observation]
+        actions = self.U.data[observation]
         # get the key(s) of the maximal value(s)
         max_values = [k for k in actions if actions[k] is max(actions.values())]
         if action in max_values:
@@ -48,8 +38,8 @@ class GreedyPolicy(Policy):
         else:
             return 0
 
-    def improve(self, training_method, action, reward):
-        training_method(self.Q, action, reward)
+    def improve(self, training, last_observation, observation, reward):
+        training.improve(self.U, last_observation, observation, reward)
 
 
 class AgentFunction:
@@ -59,17 +49,15 @@ class AgentFunction:
         The training policy and the learning method for this policy (for a session) which currently
         belongs to the implementation of the policy
         """
-        self.policy = None
-        self.training_method = None
+        self.policy = None  # RLAgent set it!
+        self.training_method = None  # RLAgent set it!
         self._last_observation = None
 
-    def improve(self, action, reward):
-        self.policy.improve(self.training_method, action, reward)
+    def improve(self, observation, action, reward):
+        self.policy.improve(self.training_method, self._last_observation, observation, reward)
 
-    def evaluate(self, observation):
-        self._last_observation = observation
-        # TODO: how to iterate on the all actions?
-        actions = self.policy.Q[observation]
+    def evaluate(self, observation, actions):
+        self._last_observation = observation  # assume that we call evaluate first!
         for action in actions:
             if self.policy.evaluate(observation, action) is not 0:
                 return action

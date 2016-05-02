@@ -21,12 +21,21 @@ class WoodCutter:
         :param action: array of action indexes indexed by manipulator ID's, which a "composite" action.
         :return: observation of the environment, and the reward
         """
-        # calculate the reward from the
+        if action is None:
+            return 0, 0
+        # calculate the reward ???
         reward = 0
         for manipulator_id in action:
             reward += self.manipulators[manipulator_id].sample(action[manipulator_id])()
 
-        return {'observation': self.forest.tree_age, 'reward': reward}
+        return self.forest.tree_age, reward
+
+    def get_actions(self):
+        """
+        Gives the Descartes product of all the possible values of all manipulators
+        :return: set of action vectors
+        """
+        return self.manipulators['plant']
 
 
 class DiscreteActionHandler:
