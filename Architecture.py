@@ -1,40 +1,56 @@
 from collections import defaultdict
-from Environment import *
+import itertools
 
 
-class WoodCutter:
-
-    def __init__(self, forest_environment):
-        # save the environment for later... (it might be not necessary)
-        self.forest = forest_environment
-        self.manipulators = {}
-
-        # add a manipulator
-        gardener = DiscreteActionHandler()
-        gardener.set_action_handler(0, forest_environment.wait_one_more_year)
-        gardener.set_action_handler(1, forest_environment.cut_down_trees)
-        self.manipulators['gardener'] = gardener
-
-    def interact(self, action):
-        """
-        Observes the environment after executes the action in the parameter.
-        :param action: array of action indexes indexed by manipulator ID's, which a "composite" action.
-        :return: observation of the environment, and the reward
-        """
-        if action is None:
-            return 0, 0
-        # calculate the reward from the
-        reward = self.manipulators['gardener']
-
-        return self.forest.tree_age, reward
+class Architecture:
+    def __init__(self):
+        self._manipulators = {}
 
     def get_actions(self):
         """
         Gives the Descartes product of all the possible values of all manipulators
         :return: set of action vectors
         """
-        # TODO: this should be a foreach in a superclass! How to represent n dim points?
-        return [self.manipulators['gardener'].get_interpretation_interval()]
+        interpretation_intervals = [self._manipulators[k].get_interpretation_interval() for k in self._manipulators]
+        return itertools.product(*interpretation_intervals)  # create the product of each intervals
+
+
+class WoodCutter(Architecture):
+
+    def __init__(self, forest_environment):
+        super().__init__()
+
+        # save the environment for later... (it might be not necessary)
+        self.forest = forest_environment
+
+        # add a manipulators
+        gardener = DiscreteActionHandler()
+        gardener.set_action_handler(0, forest_environment.wait_one_more_year)
+        gardener.set_action_handler(1, forest_environment.cut_down_trees)
+        self._manipulators['gardener'] = gardener
+
+    def interact(self, action_vector):
+        """
+        Observes the environment after executes the action in the parameter.
+        :param action_vector: array of action indexes indexed by manipulator ID's, which a "composite" action.
+        :return: observation of the environment, and the reward
+        """
+        # TODO: is it OK to return with this?
+        try:
+            if len(action_vector) != len(self._manipulators):
+                raise ValueError
+
+            reward = 0
+
+            for manipulator_name in action_vector:  # interact with the environment with manipulators one by one
+                manipulator_action = self._manipulators[manipulator_name].sample(action_vector[manipulator_name])
+                reward += manipulator_action()
+
+            return self.forest.tree_age, reward
+
+        except (KeyError, ValueError):
+            print('Action vector does not fit for the manipulators!')
+            raise
 
 
 class DiscreteActionHandler:
@@ -94,9 +110,13 @@ class ContinuousActionHandler:
         pass
 
 
+
+from Environment import *
+
 env = WoodCutterEnvironment()
 wc = WoodCutter(env)
 
-print(wc.interact({'plant': 0}))
-"""
+print(wc.interact({}))
 
+
+"""

@@ -12,9 +12,12 @@ class WoodCutterEnvironment:
             self.tree_age = 0
             self.money -= 50
             return -50
-        return 0
+        else:
+            self.tree_age += 1
+            return 0
 
     def cut_down_trees(self):
         income = self.tree_age * 10
         self.money += (income - 50)
+        self.tree_age = 0
         return income
