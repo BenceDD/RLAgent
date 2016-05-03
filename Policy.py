@@ -1,4 +1,5 @@
 from TrainingFunction import Table
+import random
 
 
 class Policy:
@@ -23,34 +24,30 @@ class Policy:
 
 
 class GreedyPolicy:  # should it inherit from policy??
-    """ This policy choose the best from the available actions for the LAST state """
+    """ This policy choose the best from the available actions from the given context"""
 
-    def __init__(self):
-        self.U = Table()
-
-    def evaluate(self, observation, action):
-        # get all actions which can be performed in a state
-        actions = self.U.data[observation]
+    @staticmethod
+    def evaluate(context, action):
+        """
+        :param context: an array where the policy choose the best from
+        :param action: the action of the (state)context which has to be evaluated
+        :return: the probability of the given action by the policy
+        """
         # get the key(s) of the maximal value(s)
-        max_values = [k for k in actions if actions[k] is max(actions.values())]
+        max_values = [k for k in context if context[k] is max(context.values())]
         if action in max_values:
             return 1 / len(max_values)  # determine the number of maximal values
         else:
             return 0
 
-    def improve(self, training, local_history):
-        training.improve(self.U, local_history)
-
 
 class AgentFunction:
 
     def __init__(self):
-        """
-        The training policy and the learning method for this policy (for a session) which currently
-        belongs to the implementation of the policy
-        """
-        self.policy = None  # RLAgent set it!
-        self.training_method = None  # RLAgent set it!
+
+        self._knowledge = Table()       # TODO: this is implied by the training method! And not a common name...
+        self.policy = None              # RLAgent set it!
+        self.training_method = None     # RLAgent set it!
 
         # represents the local history
         self.state = None
@@ -58,17 +55,25 @@ class AgentFunction:
         self.last_state = None
         self.last_action = None
 
+    def improve_dummy(self, actions):
+        for i in range(0, 10):
+            for a in actions:
+                self._knowledge.data[i][a] = random.random()
+
     def improve(self, reward):
         # add the local history to the improvement as an additional information
-        self.policy.improve(self.training_method, (self.last_state, self.last_action, reward, self.state, self.action))
+        self.training_method(self._knowledge, (self.last_state, self.last_action, reward, self.state, self.action))
 
     def evaluate(self, state, actions):  # this is called second!
         # back up the state...
         self.last_state = self.state
         self.last_action = self.action
         self.state = state
+
+        state_knowledge = self._knowledge.data[state]
+
+        # evaluate the policy to choose an action
         for action in actions:
-            if self.policy.evaluate(state, action) is not 0:
+            if self.policy.evaluate(state_knowledge, action) is not 0:
                 self.action = action
                 return self.action
-

@@ -35,8 +35,11 @@ class WoodCutter(Architecture):
         :param action_vector: array of action indexes indexed by manipulator ID's, which a "composite" action.
         :return: observation of the environment, and the reward
         """
-        # TODO: is it OK to return with this?
         try:
+            # TODO: is it OK to return with this?
+            if action_vector is None:
+                return 0, 0
+
             if len(action_vector) != len(self._manipulators):
                 raise ValueError
 

@@ -16,16 +16,18 @@ class RLAgent:
         self.agent_function.policy = policy
         self.agent_function.training_method = learning_function
 
+        self.agent_function.improve_dummy(self.architecture.get_actions())
+
         action = None
         for i in range(0, iteration_limit):
-            self.agent_function.last_state = self.agent_function.state
 
             (observation, reward) = self.architecture.interact(action)
             actions = self.architecture.get_actions()  # a set of possible actions (vectors)
+
             # TODO: define reward here from the observation?
             # reward = observation['objective']  # where objective is the name of the attribute to maximize
 
-            self.agent_function.improve(reward)
+            # self.agent_function.improve(reward)
             action = self.agent_function.evaluate(observation, actions)
 
         return self.agent_function
@@ -35,4 +37,4 @@ env = WoodCutterEnvironment()
 arch = WoodCutter(env)
 agent = RLAgent(env, arch)
 
-agent.train(GreedyPolicy(), TDLearn(0.9, 0.1), 10)
+agent.train(GreedyPolicy, TDLearn(0.9, 0.1), 10)
