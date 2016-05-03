@@ -18,13 +18,14 @@ class RLAgent:
 
         action = None
         for i in range(0, iteration_limit):
+            self.agent_function.last_state = self.agent_function.state
+
             (observation, reward) = self.architecture.interact(action)
             actions = self.architecture.get_actions()  # a set of possible actions (vectors)
-
             # TODO: define reward here from the observation?
             # reward = observation['objective']  # where objective is the name of the attribute to maximize
 
-            self.agent_function.improve(observation, action, reward)
+            self.agent_function.improve(reward)
             action = self.agent_function.evaluate(observation, actions)
 
         return self.agent_function

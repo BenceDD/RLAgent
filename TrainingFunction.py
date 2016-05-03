@@ -2,8 +2,8 @@ from collections import defaultdict
 
 
 class TrainingFunction:
-    def improve(self, function_representation):
-        function_representation.improve(self)
+    def improve(self, function_representation, additional_information):
+        function_representation.improve(self, additional_information)
 
 
 class TDLearn(TrainingFunction):
@@ -13,8 +13,10 @@ class TDLearn(TrainingFunction):
         self._discount = discount_factor
         self._N = {}
 
-    def improve_table(self, table_representation, last_state, state, reward):
+    def improve_table(self, table_representation, additional_information):
         utility = table_representation.data
+        (last_state, last_action, reward, state, action) = additional_information
+
         if state not in utility:
             utility[state] = reward
         if last_state is not None:
@@ -35,13 +37,13 @@ class Table:
     def __init__(self):
         self.data = defaultdict(lambda: defaultdict(lambda: 0))
 
-    def improve(self, func_impl):
-        func_impl.improve_table(self)
+    def improve(self, training_function, additional_information):
+        training_function.improve_table(self, additional_information)
 
 
 class NeuralNetwork:
-    def improve(self, func_impl):
-        func_impl.improve_network(self)
+    def improve(self, training_function, additional_information):
+        training_function.improve_network(self, additional_information)
 
 """
 table = NeuralNetwork()

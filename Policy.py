@@ -38,8 +38,8 @@ class GreedyPolicy:  # should it inherit from policy??
         else:
             return 0
 
-    def improve(self, training, last_observation, observation, reward):
-        training.improve(self.U, last_observation, observation, reward)
+    def improve(self, training, local_history):
+        training.improve(self.U, local_history)
 
 
 class AgentFunction:
@@ -51,14 +51,24 @@ class AgentFunction:
         """
         self.policy = None  # RLAgent set it!
         self.training_method = None  # RLAgent set it!
-        self._last_observation = None
 
-    def improve(self, observation, action, reward):
-        self.policy.improve(self.training_method, self._last_observation, observation, reward)
+        # represents the local history
+        self.state = None
+        self.action = None
+        self.last_state = None
+        self.last_action = None
 
-    def evaluate(self, observation, actions):
-        self._last_observation = observation  # assume that we call evaluate first!
+    def improve(self, reward):
+        # add the local history to the improvement as an additional information
+        self.policy.improve(self.training_method, (self.last_state, self.last_action, reward, self.state, self.action))
+
+    def evaluate(self, state, actions):  # this is called second!
+        # back up the state...
+        self.last_state = self.state
+        self.last_action = self.action
+        self.state = state
         for action in actions:
-            if self.policy.evaluate(observation, action) is not 0:
-                return action
+            if self.policy.evaluate(state, action) is not 0:
+                self.action = action
+                return self.action
 

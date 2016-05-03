@@ -10,10 +10,10 @@ class WoodCutter:
         self.manipulators = {}
 
         # add a manipulator
-        plant_action = DiscreteActionHandler('Plant')
-        plant_action.set_action_handler(0, forest_environment.wait_one_more_year)
-        plant_action.set_action_handler(1, forest_environment.cut_down_trees)
-        self.manipulators['plant'] = plant_action
+        gardener = DiscreteActionHandler()
+        gardener.set_action_handler(0, forest_environment.wait_one_more_year)
+        gardener.set_action_handler(1, forest_environment.cut_down_trees)
+        self.manipulators['gardener'] = gardener
 
     def interact(self, action):
         """
@@ -23,10 +23,8 @@ class WoodCutter:
         """
         if action is None:
             return 0, 0
-        # calculate the reward ???
-        reward = 0
-        for manipulator_id in action:
-            reward += self.manipulators[manipulator_id].sample(action[manipulator_id])()
+        # calculate the reward from the
+        reward = self.manipulators['gardener']
 
         return self.forest.tree_age, reward
 
@@ -35,12 +33,12 @@ class WoodCutter:
         Gives the Descartes product of all the possible values of all manipulators
         :return: set of action vectors
         """
-        return self.manipulators['plant']
+        # TODO: this should be a foreach in a superclass! How to represent n dim points?
+        return [self.manipulators['gardener'].get_interpretation_interval()]
 
 
 class DiscreteActionHandler:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         self._action_table = defaultdict(lambda: lambda: print("Unimplemented action!"))
 
     def sample(self, action_name):
