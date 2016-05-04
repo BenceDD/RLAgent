@@ -35,6 +35,12 @@ class GreedyPolicy:  # should it inherit from policy??
         """
         # get the key(s) of the maximal value(s)
         max_values = [k for k in context if context[k] is max(context.values())]
+
+        print("[GreedyPolicy] The context and values are:")
+        for item in context:
+            print(context[item])
+        print("[GreedyPolicy] context end.")
+
         if action in max_values:
             return 1 / len(max_values)  # determine the number of maximal values
         else:
@@ -62,7 +68,13 @@ class AgentFunction:
 
     def improve(self, reward):
         # add the local history to the improvement as an additional information
-        self.training_method(self._knowledge, (self.last_state, self.last_action, reward, self.state, self.action))
+        if self.action is None:
+            print("[AgentFunction] Action is none, return...")
+            return
+
+        # TODO: this is a piece of shit!
+        self.training_method.improve_table(self._knowledge,
+                                           (self.last_state, self.last_action, reward, self.state, self.action))
 
     def evaluate(self, state, actions):  # this is called second!
         # back up the state...
@@ -72,8 +84,17 @@ class AgentFunction:
 
         state_knowledge = self._knowledge.data[state]
 
-        # evaluate the policy to choose an action
-        for action in actions:
+        for action in actions:  # evaluate the policy to choose an action
+
+            if action not in state_knowledge:
+                state_knowledge[action] = random.random()
+
+            print("[AgentFunction] Evaluate action: " + str(action))
+
             if self.policy.evaluate(state_knowledge, action) is not 0:
+
+                print("[AgentFunction] Action selected!")
                 self.action = action
                 return self.action
+
+        print("[AgentFunction] There is no action selected!! Error!!")

@@ -25,8 +25,8 @@ class WoodCutter(Architecture):
 
         # add a manipulators
         gardener = DiscreteActionHandler()
-        gardener.set_action_handler(0, forest_environment.wait_one_more_year)
-        gardener.set_action_handler(1, forest_environment.cut_down_trees)
+        gardener.set_action_handler('wait', forest_environment.wait_one_more_year)
+        gardener.set_action_handler('cut_and_plant', forest_environment.cut_down_trees)
         self._manipulators['gardener'] = gardener
 
     def interact(self, action_vector):

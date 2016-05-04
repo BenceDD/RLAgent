@@ -26,8 +26,17 @@ class TDLearn(TrainingFunction):
 
 
 class QLearn(TrainingFunction):
-    def improve_table(self, func):
-        print("A table improved by QLearn")
+
+    def __init__(self, braveness_factor, discount_factor):
+        self.braveness = braveness_factor
+        self.discount = discount_factor
+
+    def improve_table(self, table_representation, additional_information):
+        (s, a, r, s_new, a_new) = additional_information
+        q = table_representation.data
+        print("Before improvement: " + str(q[s][a]))
+        q[s][a] = (1 - self.braveness) * q[s][a] + self.braveness * (r * self.discount * q[s_new][max(q[s_new])])
+        print("After improvement: " + str(q[s][a]))
 
     def improve_network(self, func):
         print("A network improved by QLearn")
@@ -45,9 +54,3 @@ class NeuralNetwork:
     def improve(self, training_function, additional_information):
         training_function.improve_network(self, additional_information)
 
-"""
-table = NeuralNetwork()
-td_learn = TDLearn()
-
-td_learn.improve(table)
-"""
