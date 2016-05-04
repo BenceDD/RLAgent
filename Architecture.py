@@ -9,7 +9,7 @@ class Architecture:
     def get_actions(self):
         """
         Gives the Descartes product of all the possible values of all manipulators
-        :return: set of action vectors
+        :return: set of action vectors (tuples)
         """
         interpretation_intervals = [self._manipulators[k].get_interpretation_interval() for k in self._manipulators]
         return itertools.product(*interpretation_intervals)  # create the product of each intervals
@@ -32,7 +32,7 @@ class WoodCutter(Architecture):
     def interact(self, action_vector):
         """
         Observes the environment after executes the action in the parameter.
-        :param action_vector: array of action indexes indexed by manipulator ID's, which a "composite" action.
+        :param action_vector: tuple of action indexes indexed by manipulator ID's, which a "composite" action.
         :return: observation of the environment, and the reward
         """
         try:
@@ -43,13 +43,16 @@ class WoodCutter(Architecture):
             if len(action_vector) != len(self._manipulators):
                 raise ValueError
 
+            # this is a special way for this situation:
             reward = 0
 
-            for manipulator_name in action_vector:  # interact with the environment with manipulators one by one
-                manipulator_action = self._manipulators[manipulator_name].sample(action_vector[manipulator_name])
+            tuple_index = 0  # for the iteration on the tuple
+            for manipulator_name in self._manipulators:
+                manipulator_action = self._manipulators[manipulator_name].sample(action_vector[tuple_index])
                 reward += manipulator_action()
+                tuple_index += 1
 
-            return self.forest.tree_age, reward
+            return self.forest.tree_age, reward  # tree age is the observation
 
         except (KeyError, ValueError):
             print('Action vector does not fit for the manipulators!')
