@@ -47,6 +47,18 @@ class GreedyPolicy:  # should it inherit from policy??
             return 0
 
 
+class EpsilonGreedy:
+
+    def __init__(self, epsilon):
+        self.epsilon = epsilon
+
+    def evaluate(self, context, action):
+        if random.randint(0, self.epsilon) is 2:
+            random.choice(context)
+        else:
+            return GreedyPolicy.evaluate(context, action)
+
+
 class AgentFunction:
 
     def __init__(self):
@@ -84,7 +96,15 @@ class AgentFunction:
 
         state_knowledge = self._knowledge.data[state]
 
-        for action in actions:  # evaluate the policy to choose an action
+        action_list = [x for x in actions]
+
+        if len(action_list) != 0 and random.randint(0, 5) is 2:
+            action = action_list[random.randint(0, len(action_list) - 1)]
+            if action not in state_knowledge:
+                state_knowledge[action] = random.random()
+            return action
+
+        for action in action_list:  # evaluate the policy to choose an action
 
             if action not in state_knowledge:
                 state_knowledge[action] = random.random()
