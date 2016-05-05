@@ -8,7 +8,7 @@ class WoodCutterEnvironment:
         self.tree_age = 0
 
     def wait_one_more_year(self):
-        if random.randint(0, 7) is 2:
+        if random.randint(0, 13) is 2:
             self.tree_age = 0
             self.money -= 50
             return -50

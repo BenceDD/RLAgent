@@ -45,4 +45,4 @@ env = WoodCutterEnvironment()
 arch = WoodCutter(env)
 agent = RLAgent(env, arch)
 
-agent.train(GreedyPolicy, QLearn(0.2, 0.9), 100)
+agent.train(GreedyPolicy, QLearn(0.1, 0.9), 1000)

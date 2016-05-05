@@ -53,8 +53,8 @@ class EpsilonGreedy:
         self.epsilon = epsilon
 
     def evaluate(self, context, action):
-        if random.randint(0, self.epsilon) is 2:
-            random.choice(context)
+        if random.random() < self.epsilon:
+            return random.choice(context)
         else:
             return GreedyPolicy.evaluate(context, action)
 
@@ -96,15 +96,14 @@ class AgentFunction:
 
         state_knowledge = self._knowledge.data[state]
 
-        action_list = [x for x in actions]
-
-        if len(action_list) != 0 and random.randint(0, 5) is 2:
-            action = action_list[random.randint(0, len(action_list) - 1)]
+        # TODO: Epsilon Greedy: should not be here!
+        if len(actions) != 0 and random.random() < 0.1:
+            action = random.choice(actions)
             if action not in state_knowledge:
                 state_knowledge[action] = random.random()
             return action
 
-        for action in action_list:  # evaluate the policy to choose an action
+        for action in actions:  # evaluate the policy to choose an action
 
             if action not in state_knowledge:
                 state_knowledge[action] = random.random()

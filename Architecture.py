@@ -12,7 +12,7 @@ class Architecture:
         :return: set of action vectors (tuples)
         """
         interpretation_intervals = [self._manipulators[k].get_interpretation_interval() for k in self._manipulators]
-        return itertools.product(*interpretation_intervals)  # create the product of each intervals
+        return [x for x in itertools.product(*interpretation_intervals)]  # create the product of each intervals
 
 
 class WoodCutter(Architecture):
@@ -51,6 +51,8 @@ class WoodCutter(Architecture):
                 manipulator_action = self._manipulators[manipulator_name].sample(action_vector[tuple_index])
                 reward += manipulator_action()
                 tuple_index += 1
+
+            print(self.forest.money)
 
             return self.forest.tree_age, reward  # tree age is the observation
 
@@ -114,15 +116,5 @@ class ContinuousActionHandler:
 
     def get_interpretation_interval(self):
         pass
-
-
-
-from Environment import *
-
-env = WoodCutterEnvironment()
-wc = WoodCutter(env)
-
-print(wc.interact({}))
-
 
 """
