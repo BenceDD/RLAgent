@@ -20,22 +20,23 @@ class RLAgent:
 
         action = None
         for i in range(0, iteration_limit):
+
             print(str(i) + ". round begin!")
+
             (observation, reward) = self.architecture.interact(action)
             print("[RLAgent] The observation is: " + str(observation))
             print("[RLAgent] The reward is: " + str(reward))
 
             actions = self.architecture.get_actions()  # a set of possible actions (vectors)
 
-            # TODO: define reward here from the observation?
-            # reward = observation['objective']  # where objective is the name of the attribute to maximize
-
             print("[RLAgent] Improvement the agent function...")
             self.agent_function.improve(reward)
             print("[RLAgent] Improvement finished")
+
             print("[RLAgent] Getting the next action...")
             action = self.agent_function.evaluate(observation, actions)
             print("[RLAgent] We got the next action, which is: " + str(action))
+
             print("----------------------------------------")
 
         return self.agent_function

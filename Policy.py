@@ -63,7 +63,7 @@ class AgentFunction:
 
     def __init__(self):
 
-        self._knowledge = Table()       # TODO: this is implied by the training method! And not a common name...
+        self.knowledge = Table()       # TODO: this is implied by the training method! And not a common name...
         self.policy = None              # RLAgent set it!
         self.training_method = None     # RLAgent set it!
 
@@ -73,10 +73,10 @@ class AgentFunction:
         self.last_state = None
         self.last_action = None
 
-    def improve_dummy(self, actions):
-        for i in range(0, 10):
+    def improve_dummy(self, states, actions):
+        for s in states:
             for a in actions:
-                self._knowledge.data[i][a] = random.random()
+                self.knowledge.data[s][a] = random.random()
 
     def improve(self, reward):
         # add the local history to the improvement as an additional information
@@ -84,9 +84,8 @@ class AgentFunction:
             print("[AgentFunction] Action is none, return...")
             return
 
-        # TODO: this is a piece of shit!
-        self.training_method.improve_table(self._knowledge,
-                                           (self.last_state, self.last_action, reward, self.state, self.action))
+        self.training_method.improve(self.knowledge,
+                                     (self.last_state, self.last_action, reward, self.state, self.action))
 
     def evaluate(self, state, actions):  # this is called second!
         # back up the state...
@@ -94,7 +93,7 @@ class AgentFunction:
         self.last_action = self.action
         self.state = state
 
-        state_knowledge = self._knowledge.data[state]
+        state_knowledge = self.knowledge.data[state]
 
         # TODO: Epsilon Greedy: should not be here!
         if len(actions) != 0 and random.random() < 0.1:
