@@ -27,24 +27,22 @@ class GreedyPolicy:  # should it inherit from policy??
     """ This policy choose the best from the available actions from the given context"""
 
     @staticmethod
-    def evaluate(context, action):
-        """
-        :param context: an array where the policy choose the best from
-        :param action: the action of the (state)context which has to be evaluated
-        :return: the probability of the given action by the policy
-        """
-        # get the key(s) of the maximal value(s)
-        max_values = [k for k in context if context[k] is max(context.values())]
-
-        print("[GreedyPolicy] The context and values are:")
-        for item in context:
-            print(context[item])
-        print("[GreedyPolicy] context end.")
-
-        if action in max_values:
-            return 1 / len(max_values)  # determine the number of maximal values
+    def probability(action, best_actions):
+        if action in best_actions:
+            return 1 / len(best_actions)  # determine the number of maximal values
         else:
             return 0
+
+    @staticmethod
+    def evaluate(actions):
+        """
+        :param actions: array of actions
+        :return: the distribution of the given actions by the policy
+        """
+        # get the key(s) of the maximal value(s)
+        best_actions = [k for k in actions if actions[k] is max(actions.values())]
+        # calculate the distribution
+        return {(a, GreedyPolicy.probability(a, best_actions)) for a in actions}
 
 
 class EpsilonGreedy:
@@ -52,26 +50,29 @@ class EpsilonGreedy:
     def __init__(self, epsilon):
         self.epsilon = epsilon
 
-    def evaluate(self, context, action):
+    def evaluate(self, actions):
         if random.random() < self.epsilon:
-            return random.choice(context)
+            return GreedyPolicy.evaluate(actions)  # TODO: it should modify the result of the GreedyPolicy
         else:
-            return GreedyPolicy.evaluate(context, action)
+            return GreedyPolicy.evaluate(actions)
 
 
 class AgentFunction:
 
     def __init__(self):
 
-        self.knowledge = Table()       # TODO: this is implied by the training method! And not a common name...
+        self.knowledge = Table()       # TODO: this should come from TLAgent. And not a common name...
         self.policy = None              # RLAgent set it!
         self.training_method = None     # RLAgent set it!
 
+        # TODO: infinite history!
         # represents the local history
         self.state = None
         self.action = None
         self.last_state = None
         self.last_action = None
+
+        self.history = []
 
     def improve_dummy(self, states, actions):
         for s in states:
@@ -79,40 +80,25 @@ class AgentFunction:
                 self.knowledge.data[s][a] = random.random()
 
     def improve(self, reward):
-        # add the local history to the improvement as an additional information
-        if self.action is None:
+        self.history[-1]['r'] = reward
+
+        if self.action is None:  # TODO: is it necessary?
             print("[AgentFunction] Action is none, return...")
             return
 
-        self.training_method.improve(self.knowledge,
-                                     (self.last_state, self.last_action, reward, self.state, self.action))
+        self.training_method.improve(self.knowledge, self.history)
 
     def evaluate(self, state, actions):  # this is called second!
-        # back up the state...
-        self.last_state = self.state
-        self.last_action = self.action
-        self.state = state
+        # create history
+        if len(self.history) != 0:  # if this is the first time, there is no previous
+            self.history[-1]['s_new'] = state
+        self.history.append({'s': state, 'a': actions})
 
-        state_knowledge = self.knowledge.data[state]
+        for p in self.policy(self.knowledge.data[state]):
+            # TODO: make a random choice depending on the (Epsilon)Greedy distribution
+            action = p  # calculate...
 
-        # TODO: Epsilon Greedy: should not be here!
-        if len(actions) != 0 and random.random() < 0.1:
-            action = random.choice(actions)
-            if action not in state_knowledge:
-                state_knowledge[action] = random.random()
+            # before return (after added a new line, -1. element is the new one)
+            self.history[-1]['a'] = None
             return action
 
-        for action in actions:  # evaluate the policy to choose an action
-
-            if action not in state_knowledge:
-                state_knowledge[action] = random.random()
-
-            print("[AgentFunction] Evaluate action: " + str(action))
-
-            if self.policy.evaluate(state_knowledge, action) is not 0:
-
-                print("[AgentFunction] Action selected!")
-                self.action = action
-                return self.action
-
-        print("[AgentFunction] There is no action selected!! Error!!")

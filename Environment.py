@@ -2,6 +2,9 @@ import random
 
 
 class WoodCutterEnvironment:
+    """
+    Calculate reward, always return with it.
+    """
 
     def __init__(self):
         self.money = 100
@@ -21,3 +24,11 @@ class WoodCutterEnvironment:
         self.money += (income - 50)
         self.tree_age = 0
         return income
+
+
+class MazeEnvironment:
+    # TODO: implement Maze environment
+    # http://mnemstudio.org/path-finding-q-learning-tutorial.htm
+    # http://artint.info/html/ArtInt_265.html
+    pass
+

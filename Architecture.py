@@ -36,19 +36,15 @@ class WoodCutter(Architecture):
         :return: observation of the environment, and the reward
         """
         try:
-            # TODO: is it OK to return with this?
-            if action_vector is None:
-                return 0, 0
-
             if len(action_vector) != len(self._manipulators):
                 raise ValueError
 
             # this is a special way for this situation:
             reward = 0
-
+            # TODO: this can be in the superclass: execute_and_sum_reward
             tuple_index = 0  # for the iteration on the tuple
             for manipulator_name in self._manipulators:
-                manipulator_action = self._manipulators[manipulator_name].sample(action_vector[tuple_index])
+                manipulator_action = self._manipulators[manipulator_name].get_action_handler(action_vector[tuple_index])
                 reward += manipulator_action()
                 tuple_index += 1
 
@@ -60,12 +56,15 @@ class WoodCutter(Architecture):
             print('Action vector does not fit for the manipulators!')
             raise
 
+    def initial_state(self):
+        return self.forest.tree_age
+
 
 class DiscreteActionHandler:
     def __init__(self):
         self._action_table = defaultdict(lambda: lambda: print("Unimplemented action!"))
 
-    def sample(self, action_name):
+    def get_action_handler(self, action_name):
         """
         Get the action for the execution by index/id.
         :param action_name: Action index/id

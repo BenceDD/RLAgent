@@ -14,6 +14,7 @@ class TDLearn(TrainingFunction):
         self._N = {}
 
     def improve_table(self, table_representation, additional_information):
+        # TODO: history will be the parameter!
         utility = table_representation.data
         (last_state, last_action, reward, state, action) = additional_information
 
@@ -27,15 +28,16 @@ class TDLearn(TrainingFunction):
 
 class QLearn(TrainingFunction):
 
-    def __init__(self, braveness_factor, discount_factor):
-        self.braveness = braveness_factor
+    def __init__(self, learning_rate, discount_factor):
+        self.lr = learning_rate
         self.discount = discount_factor
 
     def improve_table(self, table_representation, additional_information):
+        # TODO: history will be the parameter!
         (s, a, r, s_new, a_new) = additional_information
         q = table_representation.data
         print("Before improvement: " + str(q[s][a]))
-        q[s][a] = (1 - self.braveness) * q[s][a] + self.braveness * (r * self.discount * q[s_new][max(q[s_new])])
+        q[s][a] = (1 - self.lr) * q[s][a] + self.lr * (r + self.discount * q[s_new][max(q[s_new])])
         print("After improvement: " + str(q[s][a]))
 
     def improve_network(self, func):
