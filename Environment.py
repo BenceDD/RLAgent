@@ -28,7 +28,25 @@ class WoodCutterEnvironment:
 
 class MazeEnvironment:
     # TODO: implement Maze environment
+    def __init__(self):
+        self._map = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+            [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+            [0, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+            [0, 1, 0, 0, 0, 1, 0, 1, 1, 0],
+            [0, 1, 1, 1, 0, 1, 1, 1, 0, 0],
+            [0, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+
+    def get_area(self, x, y):
+        try:
+            return self._map[x][y]
+        except IndexError:
+            return 0
+
     # http://mnemstudio.org/path-finding-q-learning-tutorial.htm
     # http://artint.info/html/ArtInt_265.html
-    pass
-

@@ -60,6 +60,63 @@ class WoodCutter(Architecture):
         return self.forest.tree_age
 
 
+class MazeMan(Architecture):
+
+    def __init__(self, maze):
+        super().__init__()
+        self.maze = maze
+        self.position = MazeMan.initial_state()
+        self._manipulators['walk'] = {'up': self._up}
+
+    def interact(self, action_vector):
+        action_id = action_vector['walk']
+        action = self._manipulators['walk'][action_id]
+        action()
+
+        in_finish = self.position['x'] == 1 and self.position['y'] == 9
+        if in_finish:
+            return self.position, 10
+        else:
+            return self.position, 0
+
+    def get_actions(self):
+        actions = {}
+        x = self.position['x']
+        y = self.position['y']
+
+        if self.maze.get_area(x - 1, y) == 1:
+            actions['up'] = self._up
+
+        if self.maze.get_area(x + 1, y) == 1:
+            actions['down'] = self._down
+
+        if self.maze.get_area(x, y - 1) == 1:
+            actions['left'] = self._left
+
+        if self.maze.get_area(x, y + 1) == 1:
+            actions['right'] = self._right
+
+        self._manipulators['walk'] = actions
+        # TODO: should return the descartes product...
+        return self._manipulators['walk'].keys()
+
+    def _up(self):
+        self.position['x'] -= 1
+
+    def _down(self):
+        self.position['x'] += 1
+
+    def _left(self):
+        self.position['y'] -= 1
+
+    def _right(self):
+        self.position['y'] += 1
+
+    @staticmethod
+    def initial_state():
+        return {'x': 9, 'y': 1}
+
+
 class DiscreteActionHandler:
     def __init__(self):
         self._action_table = defaultdict(lambda: lambda: print("Unimplemented action!"))
@@ -117,3 +174,17 @@ class ContinuousActionHandler:
         pass
 
 """
+from Environment import *
+
+maze = MazeEnvironment()
+mm = MazeMan(maze)
+
+print(mm.get_actions())
+mm.interact({'walk': 'up'})
+print(mm.get_actions())
+mm.interact({'walk': 'up'})
+print(mm.get_actions())
+mm.interact({'walk': 'up'})
+print(mm.get_actions())
+mm.interact({'walk': 'up'})
+print(mm.get_actions())
