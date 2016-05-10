@@ -65,8 +65,6 @@ class Maze:
             self._avatar['y'] -= 1
         elif direction is 'right' and view['right'] is 1:
             self._avatar['y'] += 1
-        else:
-            print("????")
 
         return self._avatar, self._look_around()
 

@@ -39,7 +39,7 @@ class RLAgent:
         return self.agent_function
 
 
-env = WoodCutterEnvironment()
+env = Forest()
 arch = WoodCutter(env)
 agent = RLAgent(env, arch)
 
