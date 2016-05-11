@@ -3,27 +3,20 @@ import random
 
 
 class Policy:
-    def evaluate(self, observation, action):
+    def evaluate(self, actions):
+        self.evaluate(actions, None)
+
+    def evaluate(self, actions, history):
         """
-        Get the probability of an action in the given state represented by the related observation
-        :param observation: represents the state
-        :param action: this action's probability will be returned
-        :return: the probability of the action in the observed state
+        Calculate the probability of the actions got.
+        :param actions: represents the known distribution of the actions
+        :param history: this is all we already know, this can be used for the evaluation
+        :return: the modified distribution
         """
         raise Exception('Evaluation not implemented yet!')
 
-    def improve(self, training_method, action, reward):
-        """
-        Modifies the distribution of the preferred actions
-        :param training_method: the distribution modification based on this function
-        :param action: target for modification
-        :param reward: change the distribution by this value
-        :return:
-        """
-        raise Exception('Improvement not implemented yet!')
 
-
-class GreedyPolicy:  # should it inherit from policy??
+class GreedyPolicy(Policy):
     """ This policy choose the best from the available actions from the given context"""
 
     @staticmethod
@@ -33,72 +26,77 @@ class GreedyPolicy:  # should it inherit from policy??
         else:
             return 0
 
-    @staticmethod
-    def evaluate(actions):
-        """
-        :param actions: array of actions
-        :return: the distribution of the given actions by the policy
-        """
+    def evaluate(self, actions):
         # get the key(s) of the maximal value(s)
         best_actions = [k for k in actions if actions[k] is max(actions.values())]
         # calculate the distribution
-        return {(a, GreedyPolicy.probability(a, best_actions)) for a in actions}
+        return {a: GreedyPolicy.probability(a, best_actions) for a in actions}
 
 
-class EpsilonGreedy:
+class EpsilonGreedy(Policy):
 
-    def __init__(self, epsilon):
+    def __init__(self, epsilon, regression):
+        """
+        :param epsilon: probability of not following the Greedy Policy
+        :param regression: this is added to each probability before normalization
+        """
         self.epsilon = epsilon
+        self.regression = regression
+        self.greedy = GreedyPolicy()
 
     def evaluate(self, actions):
+
         if random.random() < self.epsilon:
-            return GreedyPolicy.evaluate(actions)  # TODO: it should modify the result of the GreedyPolicy
-        else:
-            return GreedyPolicy.evaluate(actions)
+            # add epsilon to each probability
+            actions = {x: actions[x] + self.epsilon for x in actions}
+            # calculate the length for the normalization
+            s = sum(actions.values())
+            # normalize and return
+            return {x: actions[x] / s for x in actions}
+
+        else:  # normal way by the Greedy
+            return self.greedy.evaluate(actions)
 
 
 class AgentFunction:
 
-    def __init__(self):
+    def __init__(self, knowledge_representation):
 
-        self.knowledge = Table()       # TODO: this should come from TLAgent. And not a common name...
         self.policy = None              # RLAgent set it!
         self.training_method = None     # RLAgent set it!
+        self.history = Table()
+        self.knowledge = None
 
-        # TODO: infinite history!
-        # represents the local history
-        self.state = None
-        self.action = None
-        self.last_state = None
-        self.last_action = None
-
-        self.history = []
-
-    def improve_dummy(self, states, actions):
-        for s in states:
-            for a in actions:
-                self.knowledge.data[s][a] = random.random()
+    @staticmethod
+    def choose(actions):
+        tmp = 0
+        r = random.random()
+        for k in actions:
+            if tmp + actions[k] > r:
+                return k
+            else:
+                tmp += actions[k]
 
     def improve(self, reward):
-        self.history[-1]['r'] = reward
+        self.history.add(-1, {'r': reward})
 
-        if self.action is None:  # TODO: is it necessary?
+        if self.action is None:  # TODO: is it necessary to return with none?
             print("[AgentFunction] Action is none, return...")
             return
 
-        self.training_method.improve(self.knowledge, self.history)
+        self.training_method.improve(self.history)
 
-    def evaluate(self, state, actions):  # this is called second!
-        # create history
-        if len(self.history) != 0:  # if this is the first time, there is no previous
-            self.history[-1]['s_new'] = state
-        self.history.append({'s': state, 'a': actions})
+    def evaluate(self, state, actions):
+        # update history
+        if self.history.length() != 0:  # if this is the first time, there is no previous
+            self.history.add(-1, {'s_new': state})
+        self.history.push({'s': state})
 
-        for p in self.policy(self.knowledge.data[state]):
-            # TODO: make a random choice depending on the (Epsilon)Greedy distribution
-            action = p  # calculate...
-
-            # before return (after added a new line, -1. element is the new one)
-            self.history[-1]['a'] = None
-            return action
+        # modify the distribution by the policies
+        actions = self.policy.evaluate(actions)
+        # choose (draw) next action
+        action = AgentFunction.choose(actions)
+        # before return (after added a new line, -1. element is the new one)
+        self.history.add(-1, {'a': action})
+        return action
 

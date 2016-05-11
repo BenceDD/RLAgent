@@ -46,10 +46,26 @@ class QLearn(TrainingFunction):
 
 class Table:
     def __init__(self):
-        self.data = defaultdict(lambda: defaultdict(lambda: 0))
+        self.data = []
 
     def improve(self, training_function, additional_information):
         training_function.improve_table(self, additional_information)
+
+    def add(self, place, item):
+        if isinstance(item, dict) is False:
+            raise ValueError
+        self.data[place] = {**self.data[place], **item}
+
+    def get(self, place):
+        return self.data[place]
+
+    def push(self, item):
+        if isinstance(item, dict) is False:
+            raise ValueError
+        self.data.append(item)
+
+    def length(self):
+        return len(self.data)
 
 
 class NeuralNetwork:

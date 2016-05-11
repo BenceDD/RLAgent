@@ -21,8 +21,8 @@ class Architecture:
         :return: an (observation, reward) tuple, where the observation is always None, and the reward (at this point
             rather than result than reward) is a dict with the manipulator names.
         """
-    #    if len(action_vector) != len(self._manipulators):
-    #        raise ValueError
+        if len(action_vector) != len(self._manipulators):
+            raise ValueError
         try:
             m = self._manipulators
             return None, {name: m[name].get_action_handler(action_vector[name])() for name in m}
@@ -59,21 +59,18 @@ class WoodCutter(Architecture):
 
 
 class MazeMan(Architecture):
-    # TODO: implement MazeMan architecture!
 
     def __init__(self, maze):
 
         super().__init__()
         self.maze = maze
 
-    def interact(self, action_vector):
-        # interact with the environment
-        _, result = super().interact(action_vector)
+        # load initial state
+        _, view = self.maze.step(None)
+        self._manipulators['walk'] = self._get_actions_from_view(view)
 
-        # get the results
-        position, view = result['walk']
+    def _get_actions_from_view(self, view):
 
-        # update manipulator
         walker = DiscreteActionHandler()
         if view['up'] is 1:
             walker.set_action_handler('up', lambda: self.maze.step('up'))
@@ -83,7 +80,17 @@ class MazeMan(Architecture):
             walker.set_action_handler('left', lambda: self.maze.step('left'))
         if view['right'] is 1:
             walker.set_action_handler('right', lambda: self.maze.step('right'))
-        self._manipulators['walk'] = walker
+        return walker
+
+    def interact(self, action_vector):
+        # interact with the environment
+        _, result = super().interact(action_vector)
+
+        # get the results
+        position, view = result['walk']
+
+        # update manipulator
+        self._manipulators['walk'] = self._get_actions_from_view(view)
 
         # calculate reward
         reward = 0
