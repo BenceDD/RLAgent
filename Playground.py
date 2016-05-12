@@ -30,3 +30,15 @@ actions = [{'fek': 'be', 'gaz': 'be'},
 
 actions2 = [{'fek': 'fully', 'gaz': 'be'},
            {'fek': 'halfly', 'gaz': 'be'}, ]
+
+
+l = [15, 18, 2, 36, 12, 78, 5, 6, 9]
+
+
+def last_avg(n):
+    if n > len(l):
+        print(sum(l) / len(l))
+    else:
+        print(sum(l[-n:]) / n)
+
+last_avg(3)

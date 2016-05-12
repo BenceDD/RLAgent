@@ -2,9 +2,6 @@ import random
 
 
 class Forest:
-    """
-    Calculate reward, always return with it.
-    """
 
     def __init__(self):
         self.money = 100  # just for fun (debug)
@@ -27,6 +24,7 @@ class Forest:
 
 
 class Maze:
+
     def __init__(self):
         self._map = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -70,6 +68,3 @@ class Maze:
 
     def reset(self):
         self._avatar = {'x': 9, 'y': 1}
-
-    # http://mnemstudio.org/path-finding-q-learning-tutorial.htm
-    # http://artint.info/html/ArtInt_265.html

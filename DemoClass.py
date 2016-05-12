@@ -11,6 +11,13 @@ class RLAgent:
         self.architecture = architecture
         self.agent_function = AgentFunction(knowledge)
 
+    @staticmethod
+    def perf_check(items, n):
+        if n > len(items):
+            return sum(items) / len(items)
+        else:
+            return sum(items[-n:]) / n
+
     def train(self, policy, learning_function, iteration_limit):
         # these can be set for a single training session
         self.agent_function.policy = policy
@@ -19,7 +26,8 @@ class RLAgent:
         observation = self.architecture.initial_state()
 
         lap_start = 0
-        quality_target = 0
+        performance_target = 0
+        laps = []
 
         for i in range(0, iteration_limit):
             # this is a list of dicts
@@ -30,17 +38,15 @@ class RLAgent:
 
             if reward > 0:
                 lap_time = i - lap_start
-                print("[" + str(i) + "] Round Finished: " + str(lap_time))
+                laps.append(lap_time)
+                print(str(RLAgent.perf_check(laps, 100)))
                 lap_start = i + 1
-                if lap_time < 50:
-                    quality_target += 1
-                if quality_target > 5:
-                    print("Quality target was hit in " + str(quality_target) + " times.")
-                    break
+                if lap_time < 25:
+                    performance_target += 1
 
             self.agent_function.improve(reward)
 
-        print("Quality target was hit in " + str(quality_target) + " times.")
+        print("Performance target was hit in " + str(performance_target) + " times.")
 
         return self.agent_function
 
@@ -48,4 +54,4 @@ env = Maze()
 arch = MazeMan(env)
 agent = RLAgent(env, arch, Table())
 
-agent.train(EpsilonGreedy(epsilon=0.1, regression=0.5), QLearn(learning_rate=0.2, discount_factor=0.95), 3000000)
+agent.train(EpsilonGreedy(epsilon=0.1, regression=0.3), QLearn(learning_rate=0.3, discount_factor=0.99), 30000)

@@ -78,7 +78,7 @@ class Table:
             difference = {}
             for i in range(0, len(actions)):
                 key = Table.to_key(actions[i])
-                if key not in self.data:
+                if key not in self.data[state]:
                     difference[key] = 0.0
             # merge the new actions
             self.data[state] = {**self.data[state], **difference}

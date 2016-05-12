@@ -95,7 +95,7 @@ class MazeMan(Architecture):
         # calculate reward
         reward = 0
         if position['x'] == 1 and position['y'] == 9:  # are we in the finish?
-            reward = 100
+            reward = 10000
             self.maze.reset()
 
         return position, reward
