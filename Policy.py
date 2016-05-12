@@ -91,7 +91,7 @@ class AgentFunction:
         # add the new actions for the knowledge base
         actions = self.knowledge.update_actions(state, new_actions)
         # modify the distribution by the policies
-        actions = self.policy.evaluate(actions)
+        actions = self.policy.evaluate(actions, None)
         # choose (draw) next action
         action = AgentFunction.choose(actions)
 
