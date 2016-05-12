@@ -138,5 +138,3 @@ class DiscreteActionHandler:
         :return: List of possible keys
         """
         return self._action_table.keys()
-
-

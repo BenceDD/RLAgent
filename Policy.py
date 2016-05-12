@@ -1,11 +1,8 @@
-from TrainingFunction import Table
 import copy
 import random
 
 
 class Policy:
-    def evaluate(self, actions):
-        self.evaluate(actions, None)
 
     def evaluate(self, actions, history):
         """
@@ -27,7 +24,7 @@ class GreedyPolicy(Policy):
         else:
             return 0
 
-    def evaluate(self, actions):
+    def evaluate(self, actions, history):
         # get the key(s) of the maximal value(s)
         best_actions = [k for k in actions if actions[k] is max(actions.values())]
         # calculate the distribution
@@ -45,7 +42,7 @@ class EpsilonGreedy(Policy):
         self.regression = regression
         self.greedy = GreedyPolicy()
 
-    def evaluate(self, actions):
+    def evaluate(self, actions, history):
 
         if random.random() < self.epsilon:
             # add epsilon to each probability
@@ -56,7 +53,7 @@ class EpsilonGreedy(Policy):
             return {x: actions[x] / s for x in actions}
 
         else:  # normal way by the Greedy
-            return self.greedy.evaluate(actions)
+            return self.greedy.evaluate(actions, None)
 
 
 class AgentFunction:
@@ -79,15 +76,11 @@ class AgentFunction:
                 tmp += actions[k]
 
     def improve(self, reward):
+        # add reward to the history
         self.history[-1]['r'] = copy.deepcopy(reward)
-
-        # TODO: is it necessary to return with none?
-
         self.training_method.improve(self.knowledge, self.history)
 
     def evaluate(self, state, new_actions):
-        # TODO: the actions is a list!
-
         # update history
         if len(self.history) != 0:  # if this is the first time, there is no previous
             self.history[-1]['s_new'] = copy.deepcopy(state)
@@ -106,8 +99,3 @@ class AgentFunction:
         # before return (after added a new line, -1. element is the new one)
         self.history[-1]['a'] = copy.deepcopy(action)
         return action
-
-    def set_init_state(self, state):
-        self.history.append({'s_new': state})
-
-

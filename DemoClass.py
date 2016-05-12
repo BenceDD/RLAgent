@@ -36,12 +36,13 @@ class RLAgent:
 
             (observation, reward) = self.architecture.interact(action)
 
+            # TODO: Add performance nicer measurement
             if reward > 0:
                 lap_time = i - lap_start
                 laps.append(lap_time)
                 print(str(RLAgent.perf_check(laps, 100)))
                 lap_start = i + 1
-                if lap_time < 25:
+                if lap_time < 21:
                     performance_target += 1
 
             self.agent_function.improve(reward)
@@ -54,4 +55,4 @@ env = Maze()
 arch = MazeMan(env)
 agent = RLAgent(env, arch, Table())
 
-agent.train(EpsilonGreedy(epsilon=0.1, regression=0.3), QLearn(learning_rate=0.3, discount_factor=0.99), 30000)
+agent.train(EpsilonGreedy(epsilon=0.05, regression=0.4), QLearn(learning_rate=0.1, discount_factor=0.99), 300000)

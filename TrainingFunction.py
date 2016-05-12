@@ -1,4 +1,3 @@
-from collections import defaultdict
 import random
 
 
@@ -21,16 +20,7 @@ class TDLearn(TrainingFunction):
         self._N = {}
 
     def improve_table(self, table_representation, additional_information):
-        # TODO: history will be the parameter!
-        utility = table_representation.data
-        (last_state, last_action, reward, state, action) = additional_information
-
-        if state not in utility:
-            utility[state] = reward
-        if last_state is not None:
-            self._N[last_state] += 1
-            utility[last_state] += self._braveness * self._N[last_state] * (
-                reward + self._discount * utility[state] - utility[last_state])
+        pass
 
 
 class QLearn(TrainingFunction):
@@ -40,7 +30,6 @@ class QLearn(TrainingFunction):
         self.discount = discount_factor
 
     def improve_table(self, table, additional_information):
-        # TODO: history will be the parameter!
         if len(additional_information) < 3:
             return
 
@@ -53,7 +42,7 @@ class QLearn(TrainingFunction):
         q[s][a] = (1 - self.lr) * q[s][a] + self.lr * (r + self.discount * q[s_new][max(q[s_new])])
 
     def improve_network(self, func):
-        print("A network improved by QLearn")
+        pass
 
 
 class Table:
@@ -91,4 +80,3 @@ class NeuralNetwork:
 
     def update_actions(self, state, actions):
         pass
-
