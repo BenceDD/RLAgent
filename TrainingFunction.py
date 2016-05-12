@@ -50,9 +50,7 @@ class QLearn(TrainingFunction):
         s_new = Table.to_key(additional_information[-2]['s_new'])
 
         q = table.data
-        print("Before improvement: " + str(q[s][a]))
         q[s][a] = (1 - self.lr) * q[s][a] + self.lr * (r + self.discount * q[s_new][max(q[s_new])])
-        print("After improvement: " + str(q[s][a]))
 
     def improve_network(self, func):
         print("A network improved by QLearn")

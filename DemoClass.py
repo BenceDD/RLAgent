@@ -17,28 +17,29 @@ class RLAgent:
         self.agent_function.training_method = learning_function
 
         observation = self.architecture.initial_state()
-    #    self.agent_function.set_init_state(observation)
-        for i in range(0, iteration_limit):
 
-            print(str(i) + ". round begin!")
+        lap_start = 0
+        quality_target = 0
+
+        for i in range(0, iteration_limit):
             # this is a list of dicts
             actions = self.architecture.get_actions()  # a set of possible actions (vectors)
-
-            print("[RLAgent] Getting the next action...")
             action = self.agent_function.evaluate(observation, actions)
-            print("[RLAgent] We got the next action, which is: " + str(action))
 
             (observation, reward) = self.architecture.interact(action)
-            print("[RLAgent] The observation is: " + str(observation))
-            print("[RLAgent] The reward is: " + str(reward))
+
             if reward > 0:
-                print("Round Finished!")
+                lap_time = i - lap_start
+                print("[" + str(i) + "] Round Finished: " + str(lap_time))
+                lap_start = i + 1
+                if lap_time < 50:
+                    quality_target += 1
+                if quality_target > 5:
+                    print("Quality target was hit in " + quality_target + " times.")
+                    break
 
-            print("[RLAgent] Improvement the agent function...")
             self.agent_function.improve(reward)
-            print("[RLAgent] Improvement finished")
-
-            print("----------------------------------------")
+            print("Quality target was hit in " + quality_target + " times.")
 
         return self.agent_function
 
@@ -46,4 +47,4 @@ env = Maze()
 arch = MazeMan(env)
 agent = RLAgent(env, arch, Table())
 
-agent.train(EpsilonGreedy(0.2, 0.5), QLearn(0.1, 0.9), 10000)
+agent.train(EpsilonGreedy(epsilon=0.1, regression=0.5), QLearn(learning_rate=0.2, discount_factor=0.95), 1000000)
