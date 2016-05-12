@@ -68,5 +68,8 @@ class Maze:
 
         return self._avatar, self._look_around()
 
+    def reset(self):
+        self._avatar = {'x': 9, 'y': 1}
+
     # http://mnemstudio.org/path-finding-q-learning-tutorial.htm
     # http://artint.info/html/ArtInt_265.html

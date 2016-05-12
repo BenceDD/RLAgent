@@ -1,4 +1,5 @@
 from TrainingFunction import Table
+import copy
 import random
 
 
@@ -64,8 +65,8 @@ class AgentFunction:
 
         self.policy = None              # RLAgent set it!
         self.training_method = None     # RLAgent set it!
-        self.history = Table()
-        self.knowledge = None
+        self.history = []
+        self.knowledge = knowledge_representation
 
     @staticmethod
     def choose(actions):
@@ -78,25 +79,35 @@ class AgentFunction:
                 tmp += actions[k]
 
     def improve(self, reward):
-        self.history.add(-1, {'r': reward})
+        self.history[-1]['r'] = copy.deepcopy(reward)
 
-        if self.action is None:  # TODO: is it necessary to return with none?
-            print("[AgentFunction] Action is none, return...")
-            return
+        # TODO: is it necessary to return with none?
 
-        self.training_method.improve(self.history)
+        self.training_method.improve(self.knowledge, self.history)
 
-    def evaluate(self, state, actions):
+    def evaluate(self, state, new_actions):
+        # TODO: the actions is a list!
+
         # update history
-        if self.history.length() != 0:  # if this is the first time, there is no previous
-            self.history.add(-1, {'s_new': state})
-        self.history.push({'s': state})
+        if len(self.history) != 0:  # if this is the first time, there is no previous
+            self.history[-1]['s_new'] = copy.deepcopy(state)
+        else:
+            self.history.append({'s_new': copy.deepcopy(state)})
+        self.history.append({'s': copy.deepcopy(state)})
 
+        # add the new actions for the knowledge base
+        actions = self.knowledge.update_actions(state, new_actions)
         # modify the distribution by the policies
         actions = self.policy.evaluate(actions)
         # choose (draw) next action
         action = AgentFunction.choose(actions)
+
+        action = dict(action)  # TODO: this is not nice..
         # before return (after added a new line, -1. element is the new one)
-        self.history.add(-1, {'a': action})
+        self.history[-1]['a'] = copy.deepcopy(action)
         return action
+
+    def set_init_state(self, state):
+        self.history.append({'s_new': state})
+
 
