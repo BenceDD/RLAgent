@@ -35,11 +35,12 @@ class RLAgent:
                 if lap_time < 50:
                     quality_target += 1
                 if quality_target > 5:
-                    print("Quality target was hit in " + quality_target + " times.")
+                    print("Quality target was hit in " + str(quality_target) + " times.")
                     break
 
             self.agent_function.improve(reward)
-            print("Quality target was hit in " + quality_target + " times.")
+
+        print("Quality target was hit in " + str(quality_target) + " times.")
 
         return self.agent_function
 
@@ -47,4 +48,4 @@ env = Maze()
 arch = MazeMan(env)
 agent = RLAgent(env, arch, Table())
 
-agent.train(EpsilonGreedy(epsilon=0.1, regression=0.5), QLearn(learning_rate=0.2, discount_factor=0.95), 1000000)
+agent.train(EpsilonGreedy(epsilon=0.1, regression=0.5), QLearn(learning_rate=0.2, discount_factor=0.95), 3000000)
