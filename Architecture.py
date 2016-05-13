@@ -30,6 +30,9 @@ class Architecture:
             print('Action vector does not fit for the manipulators!')
             raise
 
+    def initial_state(self):
+        raise Exception("Architecture must delegate the Environment's initial state!")
+
 
 class WoodCutter(Architecture):
 
@@ -51,11 +54,12 @@ class WoodCutter(Architecture):
         :param action_vector: tuple of action indexes indexed by manipulator ID's, which a "composite" action.
         :return: observation of the environment, and the reward
         """
+        print(self.forest.money)
         _, result = super().interact(action_vector)
-        return self.forest.tree_age, result['gardener']  # tree age is the observation
+        return {'tree_age': self.forest.tree_age}, result['gardener']  # tree age is the observation
 
     def initial_state(self):
-        return self.forest.tree_age
+        return {'tree_age': self.forest.tree_age}
 
 
 class MazeMan(Architecture):
@@ -100,13 +104,7 @@ class MazeMan(Architecture):
 
         return position, reward
 
-    def get_actions(self):
-        actions = super().get_actions()
-
-        return actions
-
     def initial_state(self):
-
         position, _ = self.maze.step(None)
         return position
 
