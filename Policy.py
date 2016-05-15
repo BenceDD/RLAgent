@@ -26,7 +26,7 @@ class GreedyPolicy(Policy):
 
     def evaluate(self, actions, history):
         # get the key(s) of the maximal value(s)
-        best_actions = [k for k in actions if actions[k] is max(actions.values())]
+        best_actions = [k for k in actions if actions[k] == max(actions.values())]
         # calculate the distribution
         return {a: GreedyPolicy.probability(a, best_actions) for a in actions}
 
@@ -43,17 +43,17 @@ class EpsilonGreedy(Policy):
         self.greedy = GreedyPolicy()
 
     def evaluate(self, actions, history):
-
+        # get Greedy distribution
+        distribution = self.greedy.evaluate(actions, None)
+        # than modify it...
         if random.random() < self.epsilon:
             # add epsilon to each probability
-            actions = {x: actions[x] + self.epsilon for x in actions}
+            distribution = {x: distribution[x] + self.epsilon for x in distribution}
             # calculate the length for the normalization
-            s = sum(actions.values())
+            s = sum(distribution.values())
             # normalize and return
-            return {x: actions[x] / s for x in actions}
-
-        else:  # normal way by the Greedy
-            return self.greedy.evaluate(actions, None)
+            distribution = {x: distribution[x] / s for x in distribution}
+        return distribution
 
 
 class AgentFunction:
@@ -71,7 +71,7 @@ class AgentFunction:
         r = random.random()
         for k in actions:
             if tmp + actions[k] > r:
-                return k
+                return dict(k)
             else:
                 tmp += actions[k]
 
@@ -91,11 +91,9 @@ class AgentFunction:
         # add the new actions for the knowledge base
         actions = self.knowledge.update_actions(state, new_actions)
         # modify the distribution by the policies
-        actions = self.policy.evaluate(actions, None)
+        distribution = self.policy.evaluate(actions, None)
         # choose (draw) next action
-        action = AgentFunction.choose(actions)
-
-        action = dict(action)  # TODO: this is not nice..
+        action = AgentFunction.choose(distribution)
         # before return (after added a new line, -1. element is the new one)
         self.history[-1]['a'] = copy.deepcopy(action)
         return action

@@ -26,7 +26,6 @@ class RLAgent:
         observation = self.architecture.initial_state()
 
         lap_start = 0
-        performance_target = 0
         laps = []
 
         for i in range(0, iteration_limit):
@@ -43,24 +42,14 @@ class RLAgent:
                 print(str(lap_time))
                 lap_start = i + 1
                 if lap_time == 20:
-                    performance_target += 1
                     break
 
             self.agent_function.improve(reward)
-
-        print("Performance target was hit in " + str(performance_target) + " times.")
 
         return self.agent_function
 
 env = Maze()
 arch = MazeMan(env)
 agent = RLAgent(env, arch, Table())
+agent.train(EpsilonGreedy(epsilon=0.05, regression=0.4), QLearn(learning_rate=0.1, discount_factor=0.99), 3000000)
 
-agent.train(EpsilonGreedy(epsilon=0.05, regression=0.4), QLearn(learning_rate=0.1, discount_factor=0.99), 300000)
-
-"""
-env = Forest()
-arch = WoodCutter(env)
-agent = RLAgent(env, arch, Table())
-agent.train(EpsilonGreedy(epsilon=0.5, regression=0.4), QLearn(learning_rate=0.1, discount_factor=0.5), 30000)
-"""

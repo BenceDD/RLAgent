@@ -59,9 +59,7 @@ class Table:
     def update_actions(self, state, actions):
         state = Table.to_key(state)
         if state not in self.data:
-            # get random distribution for the new actions
-            distribution = TrainingFunction.random_distribution(len(actions))
-            self.data[state] = {Table.to_key(actions[i]): distribution[i] for i in range(0, len(actions))}
+            self.data[state] = {Table.to_key(actions[i]): 0.0 for i in range(0, len(actions))}
         else:
             # calculate the difference, and set 0 probability for each
             difference = {}

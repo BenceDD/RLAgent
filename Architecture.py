@@ -97,10 +97,11 @@ class MazeMan(Architecture):
         self._manipulators['walk'] = self._get_actions_from_view(view)
 
         # calculate reward
-        reward = 0
         if position['x'] == 1 and position['y'] == 9:  # are we in the finish?
             reward = 10000
             self.maze.reset()
+        else:
+            reward = -1
 
         return position, reward
 
