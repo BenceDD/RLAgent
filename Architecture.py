@@ -101,7 +101,7 @@ class MazeMan(Architecture):
             reward = 10000
             self.maze.reset()
         else:
-            reward = -1
+            reward = 0
 
         return position, reward
 
